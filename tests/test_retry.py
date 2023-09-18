@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from reretry.api import retry, retry_call
+from retry.api import retry, retry_call
 
 
 def test_retry(monkeypatch):
