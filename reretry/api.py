@@ -1,28 +1,29 @@
 import asyncio
+import inspect
 import logging
 import random
 import time
 import traceback
 from functools import partial
 
-import inspect
-
 from .compat import decorator
 
 logging_logger = logging.getLogger(__name__)
+RISE_EXCEPTION = 'rise_exception'
 
 
 def __retry_internal(
-    f,
-    exceptions=Exception,
-    tries=-1,
-    delay=0,
-    max_delay=None,
-    backoff=1,
-    jitter=0,
-    show_traceback=False,
-    logger=logging_logger,
-    fail_callback=None,
+        f,
+        exceptions=Exception,
+        tries=-1,
+        delay=0,
+        max_delay=None,
+        backoff=1,
+        jitter=0,
+        show_traceback=False,
+        logger=logging_logger,
+        fail_callback=None,
+        default_return=RISE_EXCEPTION,
 ):
     _tries, _delay = tries, delay
 
@@ -37,7 +38,9 @@ def __retry_internal(
                 _log_attempt(tries, show_traceback, logger, _tries, _delay, e)
 
             if not _tries:
-                raise
+                if default_return is RISE_EXCEPTION:
+                    raise
+                return default_return
 
             if fail_callback is not None:
                 fail_callback(e)
@@ -48,16 +51,17 @@ def __retry_internal(
 
 
 async def __retry_internal_async(
-    f,
-    exceptions=Exception,
-    tries=-1,
-    delay=0,
-    max_delay=None,
-    backoff=1,
-    jitter=0,
-    show_traceback=False,
-    logger=logging_logger,
-    fail_callback=None,
+        f,
+        exceptions=Exception,
+        tries=-1,
+        delay=0,
+        max_delay=None,
+        backoff=1,
+        jitter=0,
+        show_traceback=False,
+        logger=logging_logger,
+        fail_callback=None,
+        default_return=RISE_EXCEPTION,
 ):
     _tries, _delay = tries, delay
 
@@ -72,7 +76,9 @@ async def __retry_internal_async(
                 _log_attempt(tries, show_traceback, logger, _tries, _delay, e)
 
             if not _tries:
-                raise
+                if default_return is RISE_EXCEPTION:
+                    raise
+                return default_return
 
             if fail_callback is not None:
                 await fail_callback(e)
@@ -124,21 +130,22 @@ def _check_params(f, show_traceback=False, logger=logging_logger, fail_callback=
     assert not show_traceback or logger is not None, "`show_traceback` needs `logger`"
 
     assert not fail_callback or (
-        (_is_async(f) and _is_async(fail_callback))
-        or (not _is_async(f) and not _is_async(fail_callback))
+            (_is_async(f) and _is_async(fail_callback))
+            or (not _is_async(f) and not _is_async(fail_callback))
     ), "If the retried function is async, fail_callback needs to be async as well or vice versa"
 
 
 def retry(
-    exceptions=Exception,
-    tries=-1,
-    delay=0,
-    max_delay=None,
-    backoff=1,
-    jitter=0,
-    show_traceback=False,
-    logger=logging_logger,
-    fail_callback=None,
+        exceptions=Exception,
+        tries=-1,
+        delay=0,
+        max_delay=None,
+        backoff=1,
+        jitter=0,
+        show_traceback=False,
+        logger=logging_logger,
+        fail_callback=None,
+        default_return=RISE_EXCEPTION,
 ):
     """Returns a retry decorator.
 
@@ -153,6 +160,7 @@ def retry(
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
     :param fail_callback: fail_callback(e) will be called on failed attempts.
+    :param default_return: instead of rising exception return default value
     :returns: a retry decorator.
     """
 
@@ -171,24 +179,26 @@ def retry(
             show_traceback,
             logger,
             fail_callback,
+            default_return,
         )
 
     return retry_decorator
 
 
 def retry_call(
-    f,
-    fargs=None,
-    fkwargs=None,
-    exceptions=Exception,
-    tries=-1,
-    delay=0,
-    max_delay=None,
-    backoff=1,
-    jitter=0,
-    show_traceback=False,
-    logger=logging_logger,
-    fail_callback=None,
+        f,
+        fargs=None,
+        fkwargs=None,
+        exceptions=Exception,
+        tries=-1,
+        delay=0,
+        max_delay=None,
+        backoff=1,
+        jitter=0,
+        show_traceback=False,
+        logger=logging_logger,
+        fail_callback=None,
+        default_return=RISE_EXCEPTION,
 ):
     """
     Calls a function and re-executes it if it failed.
@@ -207,6 +217,7 @@ def retry_call(
     :param logger: logger.warning(fmt, error, delay) will be called on failed attempts.
                    default: retry.logging_logger. if None, logging is disabled.
     :param fail_callback: fail_callback(e) will be called on failed attempts.
+    :param default_return: instead of rising exception return default value
     :returns: the result of the f function.
     """
     args = fargs or list()
@@ -226,4 +237,5 @@ def retry_call(
         show_traceback,
         logger,
         fail_callback,
+        default_return,
     )

@@ -1,8 +1,8 @@
+import time
 from unittest.mock import MagicMock
 
-import time
-
 import pytest
+
 from reretry.api import retry, retry_call
 
 
@@ -28,7 +28,7 @@ def test_retry(monkeypatch):
     with pytest.raises(RuntimeError):
         f()
     assert hit[0] == tries
-    assert mock_sleep_time[0] == sum(delay * backoff**i for i in range(tries - 1))
+    assert mock_sleep_time[0] == sum(delay * backoff ** i for i in range(tries - 1))
 
 
 def test_tries_inf():
@@ -203,3 +203,25 @@ def test_show_traceback():
         pass
 
     assert logger.warning.called
+
+
+def test_retry_with_default_return(monkeypatch):
+    hit = [0]
+    tries = 5
+
+    @retry(tries=tries, default_return='a')
+    def f():
+        hit[0] += 1
+        raise RuntimeError
+
+    r = f()
+    assert r == 'a'
+    assert hit[0] == tries
+
+
+def test_retry_call_with_default_return():
+    def f():
+        raise RuntimeError
+
+    r = retry_call(f, tries=2, default_return=1)
+    assert r == 1
