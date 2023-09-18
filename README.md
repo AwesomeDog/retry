@@ -42,7 +42,7 @@ $ pip install git+https://github.com/AwesomeDog/retry.git@master
 or in your requirements.txt
 
 ```text
--e git+https://github.com/AwesomeDog/retry.git@master
+-e git+https://github.com/AwesomeDog/retry.git@master#egg=retry
 ```
 
 ## API
