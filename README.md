@@ -1,4 +1,4 @@
-# reretry
+# retry
 
 ![](https://github.com/AwesomeDog/retry/workflows/build/badge.svg)
 [![codecov](https://codecov.io/gh/AwesomeDog/retry/branch/master/graph/badge.svg)](https://codecov.io/gh/AwesomeDog/retry)
@@ -13,8 +13,8 @@ added features.
 
 New features in this repo:
 
-- Add new param default_return: instead of rising exception return default value. Best for eliminate try-catch clause in
-  web-requests
+- Add new param default_return: instead of rising exception return default value. Best for eliminating try-catch clause
+  in web-requests
 
 New features in `reretry`:
 
