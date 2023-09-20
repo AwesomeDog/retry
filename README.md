@@ -36,13 +36,13 @@ From original `retry`:
 ## Installation
 
 ```bash
-$ pip install git+https://github.com/AwesomeDog/retry.git@master
+pip install git+https://github.com/AwesomeDog/retry.git@master
 ```
 
 or in your requirements.txt
 
 ```text
--e git+https://github.com/AwesomeDog/retry.git@master#egg=retry
+git+https://github.com/AwesomeDog/retry.git@master#egg=retry
 ```
 
 ## API
